@@ -1,0 +1,58 @@
+import cv2
+import numpy as np
+
+WIDTH = 410
+HEIGHT = 640
+
+
+court = np.zeros((HEIGHT, WIDTH, 3), dtype=np.uint8)
+court[:] = (65, 80, 20)  # Màu xanh thảm sân
+
+WHITE = (255, 255, 255)
+THICKNESS = 2
+
+
+pad_x = 20
+pad_y = 30
+
+
+vach_ngoai_w = WIDTH - 2 * pad_x   # Chiều rộng vùng thi đấu (6.1m)
+vach_ngoai_h = HEIGHT - 2 * pad_y  # Chiều dài vùng thi đấu (13.4m)
+
+x_left = pad_x
+x_right = WIDTH - pad_x
+y_top = pad_y
+y_bottom = HEIGHT - pad_y
+
+# Vẽ đường biên tổng chữ nhật ngoài cùng
+cv2.rectangle(court, (x_left, y_top), (x_right, y_bottom), WHITE, THICKNESS)
+
+# Vẽ đường lưới chính giữa sân 
+y_center = HEIGHT // 2
+cv2.line(court, (x_left, y_center), (x_right, y_center), WHITE, THICKNESS)
+
+# Vẽ vạch giao cầu ngắn 
+dist_short_service = int(1.98 / 13.4 * vach_ngoai_h)
+cv2.line(court, (x_left, y_center - dist_short_service), (x_right, y_center - dist_short_service), WHITE, THICKNESS)
+cv2.line(court, (x_left, y_center + dist_short_service), (x_right, y_center + dist_short_service), WHITE, THICKNESS)
+
+# Vẽ vạch giao cầu dài cho góc đánh đôi 
+dist_long_service = int(0.76 / 13.4 * vach_ngoai_h)
+cv2.line(court, (x_left, y_top + dist_long_service), (x_right, y_top + dist_long_service), WHITE, THICKNESS)
+cv2.line(court, (x_left, y_bottom - dist_long_service), (x_right, y_bottom - dist_long_service), WHITE, THICKNESS)
+
+# Vẽ đường biên dọc trong cho đánh đơn 
+dist_sidebar = int(0.46 / 6.1 * vach_ngoai_w)
+cv2.line(court, (x_left + dist_sidebar, y_top), (x_left + dist_sidebar, y_bottom), WHITE, THICKNESS)
+cv2.line(court, (x_right - dist_sidebar, y_top), (x_right - dist_sidebar, y_bottom), WHITE, THICKNESS)
+
+# Vẽ đường trung tâm chia đôi ô giao cầu trái/phải 
+x_center = WIDTH // 2
+cv2.line(court, (x_center, y_top), (x_center, y_center - dist_short_service), WHITE, THICKNESS)
+cv2.line(court, (x_center, y_center + dist_short_service), (x_center, y_bottom), WHITE, THICKNESS)
+
+cv2.imwrite('san_cau_long_doc.jpg', court)
+cv2.imshow('So do san cau long doc', court)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
